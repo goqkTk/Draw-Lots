@@ -201,7 +201,7 @@ function renderPapers(paperIds) {
       }
     });
 
-    // 클릭(펼치기) 기능
+    // 클릭(펼치기) 기능 (마우스)
     paper.addEventListener('click', async function(e) {
       if (isDragging || dragMoved || isTouchDragging || touchDragMoved) return;
       if (!paper.classList.contains('opened')) {
@@ -214,6 +214,25 @@ function renderPapers(paperIds) {
         }
       }
     });
+
+    // 클릭(펼치기) 기능 (터치)
+    paper.addEventListener('touchend', async function(e) {
+      if (isTouchDragging || touchDragMoved) {
+        isTouchDragging = false;
+        touchDragMoved = false;
+        return;
+      }
+      if (!paper.classList.contains('opened')) {
+        try {
+          const content = await getPaperContent(currentSessionId, paperId);
+          back.textContent = content.slice(0, 30);
+          paper.classList.add('opened');
+        } catch (err) {
+          alert(err.message);
+        }
+      }
+    });
+
     papersContainer.appendChild(paper);
   });
 } 
