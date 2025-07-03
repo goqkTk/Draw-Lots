@@ -30,53 +30,84 @@ modeSelect.addEventListener('change', () => {
   }
 });
 
-setupForm.addEventListener('submit', function(e) {
+let currentSessionId = null;
+
+async function getDrawSession(mode, count, contents) {
+  const body = { mode, count };
+  if (mode === 'custom') body.contents = contents;
+  const res = await fetch('/api/draw', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || '서버 오류');
+  }
+  const data = await res.json();
+  return data;
+}
+
+async function getPaperContent(sessionId, paperId) {
+  const res = await fetch(`/api/paper/${sessionId}/${paperId}`);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || '서버 오류');
+  }
+  const data = await res.json();
+  return data.content;
+}
+
+setupForm.addEventListener('submit', async function(e) {
   e.preventDefault();
   const mode = modeSelect.value;
-  const count = parseInt(countInput.value, 10);
-  let paperContents = [];
+  let count = parseInt(countInput.value, 10);
+  if (count > 20) count = 20;
+  countInput.value = count;
 
-  if (mode === 'winner') {
-    // 1개만 당첨, 나머지 꽝
-    paperContents = Array(count).fill('꽝');
-    const winnerIdx = Math.floor(Math.random() * count);
-    paperContents[winnerIdx] = '당첨';
-  } else if (mode === 'loser') {
-    // 1개만 꽝, 나머지 당첨
-    paperContents = Array(count).fill('당첨');
-    const loserIdx = Math.floor(Math.random() * count);
-    paperContents[loserIdx] = '꽝';
-  } else if (mode === 'order') {
-    // 1등, 2등, ... 랜덤 배치
-    paperContents = Array.from({length: count}, (_, i) => `${i+1}등`);
-    shuffleArray(paperContents);
-  } else if (mode === 'custom') {
-    // 사용자 지정 내용
+  if (mode === 'custom') {
     const raw = contentsInput.value.split(',').map(s => s.trim()).filter(Boolean);
     if (raw.length !== count) {
       alert('종이 개수와 내용 개수가 일치해야 합니다.');
       return;
     }
-    paperContents = [...raw];
-    shuffleArray(paperContents);
+    if (raw.some(s => s.length > 30)) {
+      alert('각 내용은 30자 이내로 입력해주세요.');
+      return;
+    }
+    try {
+      const { sessionId, paperIds } = await getDrawSession(mode, count, raw);
+      currentSessionId = sessionId;
+      renderPapers(paperIds);
+    } catch (err) {
+      alert(err.message);
+      return;
+    }
+  } else {
+    try {
+      const { sessionId, paperIds } = await getDrawSession(mode, count);
+      currentSessionId = sessionId;
+      renderPapers(paperIds);
+    } catch (err) {
+      alert(err.message);
+      return;
+    }
   }
-  renderPapers(paperContents);
 });
 
-function renderPapers(contents) {
+function renderPapers(paperIds) {
   papersContainer.innerHTML = '';
   const paperW = 80, paperH = 110;
   const margin = 10;
   const areaW = papersContainer.offsetWidth || 800;
   const areaH = papersContainer.offsetHeight || 400;
 
-  contents.forEach((content, idx) => {
+  paperIds.forEach((paperId, idx) => {
     const paper = document.createElement('div');
     paper.className = 'paper';
-    // 앞/뒷면 구조
     paper.innerHTML = `
       <div class="front">?</div>
-      <div class="back">${content}</div>
+      <div class="back"></div>
     `;
 
     let x = Math.random() * (areaW - paperW - margin*2) + margin;
@@ -86,7 +117,6 @@ function renderPapers(contents) {
     paper.style.top = `${y}px`;
     paper.style.transform = `rotate(${rotate}deg)`;
 
-    // 앞/뒷면 색상 동일하게 적용
     const color = getFriendlyColor(idx);
     const front = paper.querySelector('.front');
     const back = paper.querySelector('.back');
@@ -131,19 +161,18 @@ function renderPapers(contents) {
     });
 
     // 클릭(펼치기) 기능
-    paper.addEventListener('click', function(e) {
+    paper.addEventListener('click', async function(e) {
       if (isDragging || dragMoved) return;
       if (!paper.classList.contains('opened')) {
-        paper.classList.add('opened');
+        try {
+          const content = await getPaperContent(currentSessionId, paperId);
+          back.textContent = content.slice(0, 30);
+          paper.classList.add('opened');
+        } catch (err) {
+          alert(err.message);
+        }
       }
     });
     papersContainer.appendChild(paper);
   });
-}
-
-function shuffleArray(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
 } 
