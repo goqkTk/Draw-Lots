@@ -1,0 +1,17 @@
+{
+  "name": "draw-lots",
+  "version": "1.0.0",
+  "description": "제비뽑기",
+  "main": "app.js",
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/goqkTk/Draw-Lots.git"
+  },
+  "author": "goqkTk",
+  "license": "ISC",
+  "homepage": "https://github.com/goqkTk/Draw-Lots"
+}

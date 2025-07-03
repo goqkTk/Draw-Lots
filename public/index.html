@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>제비뽑기</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>제비뽑기</h1>
+  <form id="setup-form">
+    <select id="mode" name="mode">
+      <option value="winner">당첨자 뽑기</option>
+      <option value="loser">탈락자 뽑기</option>
+      <option value="order">순서 정하기</option>
+      <option value="custom">사용자 지정</option>
+    </select>
+    <input type="number" id="count" name="count" min="2" max="20" value="5" required>
+    <div id="custom-contents" style="display:none; width:100%; margin-top:10px;">
+      <input type="text" id="contents" name="contents" placeholder="예: 꽝,당첨,2등,3등,다시뽑기" style="width:300px;">
+    </div>
+    <button type="submit">종이 만들기</button>
+  </form>
+  <div id="papers-container"></div>
+  <script src="main.js"></script>
+</body>
+</html> 
