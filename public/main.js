@@ -164,6 +164,7 @@ function renderPapers(paperIds) {
     let isTouchDragging = false;
     let touchOffsetX = 0, touchOffsetY = 0;
     let touchStartX = 0, touchStartY = 0;
+    let touchEndX = 0, touchEndY = 0;
     let touchDragMoved = false;
 
     paper.addEventListener('touchstart', function(e) {
@@ -190,6 +191,8 @@ function renderPapers(paperIds) {
         paper.style.left = `${newX}px`;
         paper.style.top = `${newY}px`;
         touchDragMoved = true;
+        touchEndX = touch.clientX;
+        touchEndY = touch.clientY;
         e.preventDefault();
       }
     }, { passive: false });
@@ -217,7 +220,14 @@ function renderPapers(paperIds) {
 
     // 클릭(펼치기) 기능 (터치)
     paper.addEventListener('touchend', async function(e) {
-      if (isTouchDragging || touchDragMoved) {
+      // 터치 이동량이 10px 이하이면 클릭으로 간주
+      const endTouch = e.changedTouches && e.changedTouches[0];
+      const endX = endTouch ? endTouch.clientX : touchStartX;
+      const endY = endTouch ? endTouch.clientY : touchStartY;
+      const dx = Math.abs(endX - touchStartX);
+      const dy = Math.abs(endY - touchStartY);
+      if (dx > 10 || dy > 10) {
+        // 드래그로 간주
         isTouchDragging = false;
         touchDragMoved = false;
         return;
