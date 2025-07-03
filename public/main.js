@@ -123,7 +123,7 @@ function renderPapers(paperIds) {
     if (front) front.style.backgroundColor = color;
     if (back) back.style.backgroundColor = color;
 
-    // 드래그 기능
+    // 드래그 기능 (마우스)
     let isDragging = false;
     let dragOffsetX = 0, dragOffsetY = 0;
     let startX = 0, startY = 0;
@@ -160,9 +160,50 @@ function renderPapers(paperIds) {
       }
     });
 
+    // 드래그 기능 (터치)
+    let isTouchDragging = false;
+    let touchOffsetX = 0, touchOffsetY = 0;
+    let touchStartX = 0, touchStartY = 0;
+    let touchDragMoved = false;
+
+    paper.addEventListener('touchstart', function(e) {
+      if (e.touches.length !== 1) return;
+      isTouchDragging = true;
+      touchDragMoved = false;
+      const touch = e.touches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+      touchOffsetX = touchStartX - paper.offsetLeft;
+      touchOffsetY = touchStartY - paper.offsetTop;
+      originalZ = paper.style.zIndex;
+      paper.style.zIndex = 10;
+      document.body.style.userSelect = 'none';
+      e.preventDefault();
+    }, { passive: false });
+    document.addEventListener('touchmove', function(e) {
+      if (isTouchDragging && e.touches.length === 1) {
+        const touch = e.touches[0];
+        let newX = touch.clientX - touchOffsetX;
+        let newY = touch.clientY - touchOffsetY;
+        newX = Math.max(margin, Math.min(areaW - paperW - margin, newX));
+        newY = Math.max(margin, Math.min(areaH - paperH - margin, newY));
+        paper.style.left = `${newX}px`;
+        paper.style.top = `${newY}px`;
+        touchDragMoved = true;
+        e.preventDefault();
+      }
+    }, { passive: false });
+    document.addEventListener('touchend', function(e) {
+      if (isTouchDragging) {
+        isTouchDragging = false;
+        paper.style.zIndex = originalZ;
+        document.body.style.userSelect = '';
+      }
+    });
+
     // 클릭(펼치기) 기능
     paper.addEventListener('click', async function(e) {
-      if (isDragging || dragMoved) return;
+      if (isDragging || dragMoved || isTouchDragging || touchDragMoved) return;
       if (!paper.classList.contains('opened')) {
         try {
           const content = await getPaperContent(currentSessionId, paperId);

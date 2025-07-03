@@ -1,3 +1,10 @@
+body, * {
+  user-select: none !important;
+}
+html, body {
+  overflow: hidden;
+  height: 100%;
+}
 body {
   font-family: 'Segoe UI', Arial, sans-serif;
   background: #f7f7f7;
@@ -50,6 +57,7 @@ button:hover {
   max-height: 700px;
   margin-top: 30px;
   background: none;
+  overflow: hidden;
 }
 .paper {
   position: absolute;
