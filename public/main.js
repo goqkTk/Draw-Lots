@@ -5,21 +5,31 @@ const customContentsDiv = document.getElementById('custom-contents');
 const contentsInput = document.getElementById('contents');
 const papersContainer = document.getElementById('papers-container');
 
-const FRIENDLY_COLORS = [
-  {name: '빨강', value: '#ffb3b3'},
-  {name: '주황', value: '#ffd6a0'},
-  {name: '노랑', value: '#fff7a0'},
-  {name: '초록', value: '#b2f2bb'},
-  {name: '민트', value: '#a0f0ed'},
-  {name: '하늘', value: '#b3e0ff'},
-  {name: '파랑', value: '#b3c6ff'},
-  {name: '보라', value: '#e0b3ff'},
-  {name: '연보라', value: '#e6d6ff'},
-  {name: '분홍', value: '#ffb3e6'}
+const COLORS = [
+  {name: '연한 빨강', value: '#ffb3b3'},
+  {name: '진한 빨강', value: '#ff4d4d'},
+  {name: '연한 주황', value: '#ffd6a0'},
+  {name: '진한 주황', value: '#ff9900'},
+  {name: '연한 노랑', value: '#fff7a0'},
+  {name: '진한 노랑', value: '#ffe600'},
+  {name: '연한 초록', value: '#b2f2bb'},
+  {name: '진한 초록', value: '#2ecc40'},
+  {name: '연한 민트', value: '#a0f0ed'},
+  {name: '진한 민트', value: '#00bfae'},
+  {name: '연한 하늘', value: '#b3e0ff'},
+  {name: '진한 하늘', value: '#3399ff'},
+  {name: '연한 파랑', value: '#b3c6ff'},
+  {name: '진한 파랑', value: '#0052cc'},
+  {name: '연한 보라', value: '#e0b3ff'},
+  {name: '진한 보라', value: '#8e44ad'},
+  {name: '연한 연보라', value: '#e6d6ff'},
+  {name: '진한 연보라', value: '#b39ddb'},
+  {name: '연한 분홍', value: '#ffb3e6'},
+  {name: '진한 분홍', value: '#ff4da6'}
 ];
 
-function getFriendlyColor(idx) {
-  return FRIENDLY_COLORS[idx % FRIENDLY_COLORS.length].value;
+function getColor(idx) {
+  return COLORS[idx % COLORS.length].value;
 }
 
 modeSelect.addEventListener('change', () => {
@@ -117,7 +127,7 @@ function renderPapers(paperIds) {
     paper.style.top = `${y}px`;
     paper.style.transform = `rotate(${rotate}deg)`;
 
-    const color = getFriendlyColor(idx);
+    const color = getColor(idx);
     const front = paper.querySelector('.front');
     const back = paper.querySelector('.back');
     if (front) front.style.backgroundColor = color;
