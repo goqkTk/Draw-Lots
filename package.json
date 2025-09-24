@@ -7,6 +7,9 @@
     "express": "^5.1.0",
     "uuid": "^11.1.0"
   },
+  "scripts": {
+    "start": "node app.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/goqkTk/Draw-Lots.git"
